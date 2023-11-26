@@ -1,0 +1,185 @@
+import pyttsx3
+import webbrowser
+import smtplib
+import speech_recognition as sr
+import wikipedia
+import datetime
+import wolframalpha
+import os
+import sys
+import pywhatkit as kit
+import calendar
+import operator
+import pyjokes
+import winshell
+import random
+import re
+
+
+
+engine = pyttsx3.init('sapi5')
+
+client = wolframalpha.Client('Your_App_ID')
+
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[0].id)
+
+
+def speak(audio):
+    print('MAX: ' + audio)
+    engine.say(audio)
+    engine.runAndWait()
+#def greetme message as per the time
+def wishMe():
+    hour = int(datetime.datetime.now().hour)
+    if hour >= 0 and hour < 12:
+        speak("Good Morning Sir !")
+
+    elif hour >= 12 and hour < 18:
+        speak("Good Afternoon Sir !")
+
+speak("I am your Assistant Max")
+speak("How may I help you")
+
+
+
+def myCommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Initialising...")
+        r.pause_threshold = 1
+        audio = r.listen(source)
+    try:
+        query = r.recognize_google(audio, language='en-us')
+        print('User: ' + query + '\n')
+
+    except sr.UnknownValueError:
+        speak('Sorry sir! I didn\'t get that! Try typing the command!  I will check it out')
+        query = str(input('Command: '))
+    return query
+#command accesing
+if __name__ == '__main__':
+
+    while True:
+
+        query = myCommand();
+        query = query.lower()
+
+        if'open'and'youtube' in query:
+            speak('okay sir')
+            webbrowser.open('www.youtube.com')
+        elif 'open'and'google'in query:
+            speak('okay sir')
+            webbrowser.open('www.google.co.in')
+        elif 'open'and'whatsapp' in query:
+            speak('okay sir')
+            webbrowser.open('web.whatsapp.com')
+        elif "show note" in query:
+            speak("Showing Notes")
+            file = open("voice.txt", "r")
+            print(file.read())
+            speak(file.read(6))
+        elif 'open'and'gmail' in query:
+            speak('okay sir')
+            webbrowser.open('www.gmail.com')
+        elif 'open'and'my website max' in query:
+            speak('okay sir')
+            webbrowser.open('www.zarcwebsite.com')
+        elif 'what is the time max' in query:
+            strTime = datetime.datetime.now().strftime("%H:%M:%S")
+            speak(f"Sir the time is {strTime}")
+        elif 'when were you born' in query:
+            speak("I was created on 26th March 2021 by Master Kaushik")
+        elif 'why were you created' in query:
+            speak("I was created by Master Kaushik for making his work simpler")
+        elif 'wait'and'for'and 'a'and 'minute' in query:
+            speak('okay sir')
+        elif "what\'s up" in query or 'how are you' in query:
+            stMsgs = ['Just doing my thing!', 'I am fine!', 'Nice!', 'I am nice and full of energy']
+            speak(random.choice(stMsgs))
+        elif 'could you tell me a joke' in query:
+            speak(pyjokes.get_joke())# random jokes function
+        elif 'its a bad joke Max' in query:
+            speak("Sorry Sir thats what i have sir")
+        elif 'open code' in query:
+            codePath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains"
+            speak('the IDE pycharm is at your service')
+        elif 'shutdown system the max close all the applications' in query:
+            speak("Hold On a Sec ! Your system is on its way to shut down sir")
+            subprocess.call('shutdown / p /f')
+        elif 'empty recycle bin Max' in query:
+            winshell.recycle_bin().empty(confirm=False, show_progress=False, sound=True)#winshell used for the recycle bin command
+            speak("Recycle Bin Recycled Sir")
+        elif "don't listen for me for for sometime max" in query or "stop listening to me for some time max" in query:
+            speak("for how much time you want to stop Max from listening commands")
+            a = int(takeCommand())
+            time.sleep(a)
+            print(a)
+        elif "restart the system max" in query:
+            speak('yes sir the sytem is getting restarted hold on for a second sir')
+            subprocess.call(["shutdown", "/r"])
+        elif 'play music' in query:
+            music_dir ="C:/Users/apoor/Music"
+            songs = os.listdir(music_dir)
+            print(songs)
+            os.startfile(os.path.join(music_dir, songs[0]))
+        elif 'open pycharm max' in query:
+            codePath = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains"  # that's the code path.
+            os.startfile(codePath)
+        elif "log off the system max" in query or "sign out" in query:
+            speak("Make sure all the application are closed before sign-out sir")
+            time.sleep(5)
+            subprocess.call(["shutdown", "/l"])
+        elif 'okay'and'max'and'bye' in query or 'abort' in query or 'stop' in query:
+            speak('okay sir')
+            speak('Bye Sir, have a good day.')
+            sys.exit()
+        elif 'What is your name' in query:
+            speak("My name is Max, I am your personal assistant")
+            sys.exit()
+        elif 'when were you born'in query:
+            speak('I was created on 26th March 2021 by Master Kaushik')
+        elif 'open' in query:
+            reg_ex = re.search('open (.+)', query)
+            if reg_ex:
+                domain = reg_ex.group(1)
+                print(domain)
+                url = 'https://www.' + domain
+                webbrowser.open(url)
+                speak('The website you have requested has been opened for you Sir.')
+            else:
+                pass
+        elif 'what is today news max' in query:
+            try:
+                news_url = "https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en"
+                Client = urlopen(news_url)
+                xml_page = Client.read()
+                Client.close()
+                soup_page = soup(xml_page, "xml")
+                news_list = soup_page.findAll("item")
+                for news in news_list[:15]:
+                    speak(news.title.text.encode('utf-8'))
+            except Exception as e:
+                print(e)
+        else:
+            query = query
+            speak('Searching...')
+            try:
+                try:
+                    res = client.query(query)
+                    results = next(res.results).text
+                    speak('WOLFRAM-ALPHA says - ')
+                    speak('Got it.')
+                    speak(results)
+
+                except:
+                    results = wikipedia.summary(query, sentences=2)
+                    speak('Got it.')
+                    speak('WIKIPEDIA says - ')
+                    speak(results)
+
+            except:
+                webbrowser.open('www.google.com')
+
+
+        speak('Next Command! Sir!')
